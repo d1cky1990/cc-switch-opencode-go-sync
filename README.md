@@ -1,4 +1,6 @@
 # cc-switch-opencode-go-sync
+> [中文说明](README.zh-CN.md)
+
 
 Sync the [OpenCode Go (Zen)](https://opencode.ai/zen) model list into the
 [cc-switch](https://github.com/farion1231/cc-switch) Codex provider mapping table,
