@@ -14,6 +14,7 @@ import os
 import re
 import shutil
 import sqlite3
+import time
 import sys
 import urllib.request
 
@@ -55,6 +56,18 @@ def fetch_json(url, timeout, extra_headers=None):
         return json.load(resp)
 
 
+def fetch_json_retry(url, timeout, extra_headers=None, tries=3):
+    last = None
+    for attempt in range(1, tries + 1):
+        try:
+            return fetch_json(url, timeout, extra_headers)
+        except Exception as exc:
+            last = exc
+            if attempt < tries:
+                time.sleep(2 * attempt)
+    raise last
+
+
 def pick_provider(con, provider_id=None):
     con.row_factory = sqlite3.Row
     rows = con.execute(
@@ -84,7 +97,7 @@ def parse_provider(row):
 
 def fetch_live(base_url, key, timeout):
     url = base_url.rstrip("/") + "/models"
-    data = fetch_json(url, timeout, {"Authorization": "Bearer " + key})
+    data = fetch_json_retry(url, timeout, {"Authorization": "Bearer " + key})
     items = data.get("data") if isinstance(data, dict) else None
     if not isinstance(items, list):
         return None, "unexpected /models response shape"
@@ -155,6 +168,10 @@ def print_plan(provider_name, new_models, skipped_new, live_only, live_extra, ch
     print("## STALE kept (" + str(len(changes["stale"])) + ")")
     for mid in changes["stale"]:
         print("  [STALE] " + mid)
+    dropped = changes.get("dropped", [])
+    print("## STALE to be deleted (" + str(len(dropped)) + ")")
+    for mid in dropped:
+        print("  [DROP] " + mid)
 
 
 def apply_overrides(new_models, changes, local, args):
@@ -224,8 +241,10 @@ def main(argv=None):
     paths = default_paths()
     db_path = args.db or paths["db"]
     con = sqlite3.connect(db_path)
-    hits = pick_provider(con, args.provider_id)
-    con.close()
+    try:
+        hits = pick_provider(con, args.provider_id)
+    finally:
+        con.close()
     if len(hits) == 0:
         raise SystemExit("no Codex provider matching " + MATCH_HOST + " found")
     if len(hits) > 1:
@@ -236,7 +255,7 @@ def main(argv=None):
     print("key: present in DB (hidden, memory-only)")
     print("base_url: " + str(base_url))
 
-    catalog = fetch_json(MODELS_DEV_URL, args.timeout)
+    catalog = fetch_json_retry(MODELS_DEV_URL, args.timeout)
     entry = catalog.get("opencode-go") or {}
     upstream_raw = entry.get("models") or {}
     upstream = {}
