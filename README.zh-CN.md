@@ -7,12 +7,6 @@
 以后 OpenCode 加模型、换模型（包括限时模型）都不用再逐条手工填写菜单显示名、
 实际请求模型和上下文窗口了。
 
-不用发布 npm 包，直接从 GitHub 一键安装：
-
-```powershell
-npx skills add d1cky1990/cc-switch-opencode-go-sync -g -y
-```
-
 ---
 
 ## 普通用户视角：安装和使用（不用写代码）
@@ -135,3 +129,4 @@ cc-switch 会回退到 128K，只会提前压缩、不会断粮）。
 ## 开源协议
 
 MIT，见 [LICENSE](LICENSE)。
+

@@ -6,12 +6,6 @@ Sync the [OpenCode Go (Zen)](https://opencode.ai/zen) model list into the
 so you no longer have to hand-fill menu display name, request model id and
 context window every time OpenCode adds or rotates models (including limited-time ones).
 
-No npm package to publish — install straight from GitHub with the skills CLI:
-
-```powershell
-npx skills add d1cky1990/cc-switch-opencode-go-sync -g -y
-```
-
 ---
 
 ## For everyday users: install & use (no coding needed)
@@ -143,3 +137,4 @@ cc-switch falls back to 128K, which only compacts earlier instead of breaking).
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
